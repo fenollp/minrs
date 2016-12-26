@@ -1,0 +1,7 @@
+[package]
+name = "minrs"
+version = "0.1.0"
+authors = ["Pierre Fenoll <pierrefenoll@gmail.com>"]
+
+[dependencies]
+glium = "*"
