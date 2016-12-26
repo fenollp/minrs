@@ -3,7 +3,9 @@ extern crate glium;
 
 fn main() {
     use glium::{DisplayBuild, Surface};
-    let display = glium::glutin::WindowBuilder::new().build_glium().unwrap();
+    let display = glium::glutin::WindowBuilder::new().with_title("minrs").build_glium().unwrap();
+    use glium::backend::Facade;
+    let (width, height) = display.get_context().get_framebuffer_dimensions();
 
     #[derive(Copy, Clone)]
     struct Vertex {
@@ -12,12 +14,16 @@ fn main() {
 
     implement_vertex!(Vertex, position);
 
-    let shape = vec![
-        Vertex{ position: [0.0, 0.0] },
-        // Vertex{ position: [-0.5, -0.5] },
-        // Vertex{ position: [ 0.0,  0.5] },
-        // Vertex{ position: [ 0.5, -0.25] },
-    ];
+    let mut shape = vec![];
+    let half_width = width as f32 / 2f32;
+    let half_height = height as f32 / 2f32;
+    for y in 0..height {
+        for x in 0..width {
+            let xx = (x as f32 - half_width) / half_width;
+            let yy = (y as f32 - half_height) / half_height;
+            shape.push(Vertex{position: [xx, yy]});
+        }
+    }
 
     let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::Points);
@@ -31,7 +37,7 @@ fn main() {
         in vec2 position;
 
         void main() {
-            gl_PointSize = 4;
+            gl_PointSize = 1;
             gl_Position = vec4(position, 0.0, 1.0);
         }
         ",
@@ -45,11 +51,6 @@ fn main() {
         }
         ",
                            }).unwrap();
-
-    for (name, attribute) in program.attributes() {
-        println!("Name: {} - Type: {:?}", name, attribute.ty);
-    }
-    println!("gl_PointSize activated: {:?}", program.uses_point_size());
 
     loop {
         let mut target = display.draw();
