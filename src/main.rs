@@ -61,13 +61,10 @@ fn main() {
             shape.push(Vertex{position: [xx, yy]});
         }
     }
+    println!("shape size: {:?}", shape.len());
 
     let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
-    let texture = glium::texture::Texture1d::empty_with_format(&display,
-                                                               glium::texture::UncompressedFloatFormat::U8U8U8U8,
-                                                               glium::texture::MipmapsOption::NoMipmap,
-                                                               // width * height).unwrap();
-                                                               1024).unwrap();
+    let texture = load_file_1d(&display, width, height, args.arg_file.as_str()).unwrap();
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::Points);
     let uniforms = uniform! {
         tex: &texture
@@ -116,4 +113,46 @@ fn main() {
             }
         }
     }
+}
+
+#[derive(Debug)]
+enum Load1DError {
+    Io(std::io::Error),
+    Gl(glium::texture::TextureCreationError),
+}
+
+fn load_file_1d<F: ?Sized>(display: &F, width: u32, height: u32, path: &str)
+    -> Result<glium::texture::Texture1d, Load1DError> where F: Facade + std::marker::Sized {
+    let read_bytes = std::cmp::min(1024, width * height);
+    println!("trying to read {:?} of {:?}", read_bytes, path);
+
+    let mut buffer = Vec::new();
+    let f = try!(std::fs::File::open(path).map_err(Load1DError::Io));
+    let mut chunk = f.take(read_bytes as u64);
+    use std::io::Read;
+    let bytes_read = try!(chunk.read_to_end(&mut buffer).map_err(Load1DError::Io)) as u32;
+    println!("read {:?}", bytes_read);
+
+    use glium::texture::pixel_buffer::PixelBuffer;
+    let pixelbuffer = PixelBuffer::new_empty(display, bytes_read as usize);
+    pixelbuffer.write(buffer.as_slice());
+    println!("pixelbuffer size: {:?}", pixelbuffer.get_size());
+
+    use glium::texture::Texture1d;
+    let texture = try!(Texture1d::empty_with_format(display,
+                                                    glium::texture::UncompressedFloatFormat::U8U8U8U8,
+                                                    glium::texture::MipmapsOption::NoMipmap,
+                                                    bytes_read)
+                       .map_err(Load1DError::Gl));
+
+    texture.main_level().raw_upload_from_pixel_buffer(pixelbuffer.as_slice(), 0..bytes_read, 0..1, 0..1);
+    println!("texture info: {:?} {:?} {:?} {:?} {:?} {:?}"
+             ,texture.get_width()
+             ,texture.get_height()
+             ,texture.get_depth()
+             ,texture.kind()
+             ,texture.get_texture_type()
+             ,texture.get_mipmap_levels()
+            );
+    Ok(texture)
 }
