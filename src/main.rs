@@ -43,6 +43,7 @@ fn main() {
     let version = display.get_opengl_version();
     println!("OpenGL version {:?}", version);
     let (width, height) = display.get_context().get_framebuffer_dimensions();
+    println!("{:?}x{:?} = {:?}", width, height, width * height);
 
     #[derive(Copy, Clone)]
     struct Vertex {
@@ -67,7 +68,8 @@ fn main() {
     let texture = load_file_1d(&display, width, height, args.arg_file.as_str()).unwrap();
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::Points);
     let uniforms = uniform! {
-        tex: &texture
+        tex: &texture,
+        window: [width as f32, height as f32, 0.0],
     };
 
     let program = program!(&display,
@@ -75,6 +77,9 @@ fn main() {
                                point_size: true,
                                vertex: "
         #version 140
+
+        uniform sampler1D tex;
+        uniform vec3 window;
 
         in vec2 position;
         out vec2 pos;
@@ -89,13 +94,14 @@ fn main() {
         #version 140
 
         uniform sampler1D tex;
+        uniform vec3 window;
 
         in vec2 pos;
         out vec4 color;
 
         void main() {
-            vec4 c = texture(tex, pos.x);
-            color = vec4(pos, c.r, 1.0);
+            vec4 c = texture(tex, pos.x + pos.y * window.y);
+            color = vec4(c);
         }
         ",
                            }).unwrap();
@@ -109,6 +115,7 @@ fn main() {
         for ev in display.poll_events() {
             match ev {
                 glium::glutin::Event::Closed => return,
+                glium::glutin::Event::KeyboardInput(glium::glutin::ElementState::Released, 9, Some(_)) => return,
                 _ => ()
             }
         }
@@ -123,7 +130,7 @@ enum Load1DError {
 
 fn load_file_1d<F: ?Sized>(display: &F, width: u32, height: u32, path: &str)
     -> Result<glium::texture::Texture1d, Load1DError> where F: Facade + std::marker::Sized {
-    let read_bytes = std::cmp::min(1024, width * height);
+    let read_bytes = std::cmp::min(8192, width * height);
     println!("trying to read {:?} of {:?}", read_bytes, path);
 
     let mut buffer = Vec::new();
