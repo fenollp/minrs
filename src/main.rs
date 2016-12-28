@@ -1,14 +1,47 @@
 #[macro_use]
 extern crate glium;
 
+extern crate rustc_serialize;
+extern crate docopt;
+
+use glium::backend::Facade;
+
+const NAME: &'static str = "minrs";
+
+const USAGE: &'static str = r#"
+I kept dreaming of a world I thought I'd never see
+
+Usage:
+  minrs <file>
+  minrs (-h | --help)
+  minrs --version
+
+Options:
+  -v, --verbose  Show debug info on stdout.
+  -h, --help     Show this screen.
+  --version      Show version.
+"#;
+
+#[derive(Debug, RustcDecodable)]
+struct Args {
+  arg_file: String,
+  flag_verbose: bool,
+}
+
 fn main() {
+    let args: Args = docopt::Docopt::new(USAGE)
+        .and_then(|d| d.decode())
+        .unwrap_or_else(|e| e.exit());
+    println!("{:?}", args);
+
     use glium::{DisplayBuild, Surface};
     let display = glium::glutin::WindowBuilder::new()
-        .with_title("minrs")
+        .with_title(NAME)
         .with_vsync()
         .build_glium()
         .unwrap();
-    use glium::backend::Facade;
+    let version = display.get_opengl_version();
+    println!("OpenGL version {:?}", version);
     let (width, height) = display.get_context().get_framebuffer_dimensions();
 
     #[derive(Copy, Clone)]
