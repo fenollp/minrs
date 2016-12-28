@@ -3,7 +3,11 @@ extern crate glium;
 
 fn main() {
     use glium::{DisplayBuild, Surface};
-    let display = glium::glutin::WindowBuilder::new().with_title("minrs").build_glium().unwrap();
+    let display = glium::glutin::WindowBuilder::new()
+        .with_title("minrs")
+        .with_vsync()
+        .build_glium()
+        .unwrap();
     use glium::backend::Facade;
     let (width, height) = display.get_context().get_framebuffer_dimensions();
 
@@ -26,7 +30,15 @@ fn main() {
     }
 
     let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
+    let texture = glium::texture::Texture1d::empty_with_format(&display,
+                                                               glium::texture::UncompressedFloatFormat::U8U8U8U8,
+                                                               glium::texture::MipmapsOption::NoMipmap,
+                                                               // width * height).unwrap();
+                                                               1024).unwrap();
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::Points);
+    let uniforms = uniform! {
+        tex: &texture
+    };
 
     let program = program!(&display,
                            140 => {
@@ -35,19 +47,25 @@ fn main() {
         #version 140
 
         in vec2 position;
+        out vec2 pos;
 
         void main() {
             gl_PointSize = 1;
             gl_Position = vec4(position, 0.0, 1.0);
+            pos = position;
         }
         ",
                                fragment: "
         #version 140
 
+        uniform sampler1D tex;
+
+        in vec2 pos;
         out vec4 color;
 
         void main() {
-            color = vec4(1.0, 0.0, 0.0, 1.0);
+            vec4 c = texture(tex, pos.x);
+            color = vec4(pos, c.r, 1.0);
         }
         ",
                            }).unwrap();
@@ -55,8 +73,7 @@ fn main() {
     loop {
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 1.0);
-        target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
-                    &Default::default()).unwrap();
+        target.draw(&vertex_buffer, &indices, &program, &uniforms, &Default::default()).unwrap();
         target.finish().unwrap();
 
         for ev in display.poll_events() {
