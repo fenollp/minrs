@@ -65,9 +65,9 @@ fn main() {
     println!("shape size: {:?}", shape.len());
 
     let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
-    // let texture = load_file_1d(&display, width, height, args.arg_file.as_str()).unwrap();
+    let texture = load_file_1d(&display, width, height, args.arg_file.as_str()).unwrap();
     // let texture = file_to_texture(&display, width, height, args.arg_file.as_str()).unwrap();
-    let texture = file_to_texture2d(&display, width, height, args.arg_file.as_str()).unwrap();
+    // let texture = file_to_texture2d(&display, width, height, args.arg_file.as_str()).unwrap();
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::Points);
     let uniforms = uniform! {
         tex: &texture,
@@ -94,21 +94,22 @@ fn main() {
                                fragment: "
         #version 140
 
-        // uniform sampler1D tex;
-        uniform sampler2D tex;
+        uniform sampler1D tex;
+        // uniform sampler2D tex;
         uniform vec3 window;
 
         in vec2 pos;
         out vec4 color;
 
         void main() {
-            // float idx = pos.x + pos.y * window.y;
-            // vec4 r = texture(tex, idx + 0);
-            // vec4 g = texture(tex, idx + 1);
-            // vec4 b = texture(tex, idx + 2);
-            // color = vec4(r.x, g.x, b.x, 1);
-            vec4 c = texture(tex, pos);
-            color = vec4(c.rgb, 1);
+            float idx = pos.x + pos.y * window.y;
+            vec4 r = texture(tex, idx + 0);
+            vec4 g = texture(tex, idx + 1);
+            vec4 b = texture(tex, idx + 2);
+            color = vec4(r.r, g.r, b.r, 1);
+
+            // vec4 c = texture(tex, pos);
+            // color = vec4(c.rgb, 1);
         }
         ",
                            }).unwrap();
@@ -156,20 +157,12 @@ fn make_1d_texture<F: ?Sized>(display: &F, buffer: std::vec::Vec<u8>)
                               -> Result<glium::texture::Texture1d, LoadError>
     where F: Facade + std::marker::Sized
 {
-    let bytes_read = buffer.len() as u32;
-    use glium::texture::pixel_buffer::PixelBuffer;
-    let pixelbuffer = PixelBuffer::new_empty(display, bytes_read as usize);
-    pixelbuffer.write(buffer.as_slice());
-    println!("pixelbuffer size: {:?}", pixelbuffer.get_size());
-
     use glium::texture::Texture1d;
-    let texture = try!(Texture1d::empty_with_format(display,
-                                                    glium::texture::UncompressedFloatFormat::U8U8U8U8,
-                                                    glium::texture::MipmapsOption::NoMipmap,
-                                                    bytes_read)
+    let texture = try!(Texture1d::with_format(display, buffer,
+                                              glium::texture::UncompressedFloatFormat::U8U8U8U8,
+                                              glium::texture::MipmapsOption::NoMipmap)
                        .map_err(LoadError::Gl));
 
-    texture.main_level().raw_upload_from_pixel_buffer(pixelbuffer.as_slice(), 0..bytes_read, 0..1, 0..1);
     println!("texture info: {:?} {:?} {:?} {:?} {:?} {:?}"
              ,texture.get_width()
              ,texture.get_height()
@@ -238,7 +231,9 @@ fn make_depth2d_texture<F: ?Sized>(display: &F, buffer: std::vec::Vec<f32>) ->
     Result<glium::texture::DepthTexture2d, LoadError>
     where F: Facade + std::marker::Sized
 {
-    let side = (buffer.len() as f64).sqrt() as usize;
+    // let side = (buffer.len() as f64).sqrt() as usize;
+    let side = buffer.len() / 64;
+    // let side = 4;
     let mut buffers: Vec<Vec<f32>> = vec![];
     for slice in buffer.chunks(side) {
         let vec = slice.to_vec();
