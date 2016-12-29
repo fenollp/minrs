@@ -129,7 +129,9 @@ enum Load1DError {
 }
 
 fn load_file_1d<F: ?Sized>(display: &F, width: u32, height: u32, path: &str)
-    -> Result<glium::texture::Texture1d, Load1DError> where F: Facade + std::marker::Sized {
+                           -> Result<glium::texture::Texture1d, Load1DError>
+    where F: Facade + std::marker::Sized
+{
     let read_bytes = std::cmp::min(8192, width * height);
     println!("trying to read {:?} of {:?}", read_bytes, path);
 
@@ -140,6 +142,14 @@ fn load_file_1d<F: ?Sized>(display: &F, width: u32, height: u32, path: &str)
     let bytes_read = try!(chunk.read_to_end(&mut buffer).map_err(Load1DError::Io)) as u32;
     println!("read {:?}", bytes_read);
 
+    make_texture_1d(display, buffer)
+}
+
+fn make_texture_1d<F: ?Sized>(display: &F, buffer: std::vec::Vec<u8>)
+                              -> Result<glium::texture::Texture1d, Load1DError>
+    where F: Facade + std::marker::Sized
+{
+    let bytes_read = buffer.len() as u32;
     use glium::texture::pixel_buffer::PixelBuffer;
     let pixelbuffer = PixelBuffer::new_empty(display, bytes_read as usize);
     pixelbuffer.write(buffer.as_slice());
