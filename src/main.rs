@@ -102,11 +102,14 @@ fn main() {
         out vec4 color;
 
         void main() {
-            float idx = pos.x + pos.y * window.y;
-            vec4 r = texture(tex, idx + 0);
-            vec4 g = texture(tex, idx + 1);
-            vec4 b = texture(tex, idx + 2);
-            color = vec4(r.r, g.r, b.r, 1);
+            float idx = 1*(pos.y + 1*(pos.x * window.y));
+
+            color = vec4(texture(tex, idx).rgb, 1);
+
+            // vec4 r = texture(tex, idx + 0);
+            // vec4 g = texture(tex, idx + 1);
+            // vec4 b = texture(tex, idx + 2);
+            // color = vec4(r.r, g.r, b.r, 1);
 
             // vec4 c = texture(tex, pos);
             // color = vec4(c.rgb, 1);
@@ -157,19 +160,30 @@ fn make_1d_texture<F: ?Sized>(display: &F, buffer: std::vec::Vec<u8>)
                               -> Result<glium::texture::Texture1d, LoadError>
     where F: Facade + std::marker::Sized
 {
+    let side = 3;
+    let mut buffers: Vec<(u8, u8, u8)> = vec![];
+    for slice in buffer.chunks(side) {
+        let vec = slice.to_vec();
+        if vec.len() == side {
+            buffers.push((vec[0], vec[1], vec[2]));
+        }
+    }
+
     use glium::texture::Texture1d;
     let texture = try!(Texture1d::with_format(display, buffer,
                                               glium::texture::UncompressedFloatFormat::U8U8U8U8,
                                               glium::texture::MipmapsOption::NoMipmap)
                        .map_err(LoadError::Gl));
 
-    println!("texture info: {:?} {:?} {:?} {:?} {:?} {:?}"
+    println!("texture info: {:?} {:?} {:?} {:?} {:?} {:?} {:?} {:?}"
              ,texture.get_width()
              ,texture.get_height()
              ,texture.get_depth()
              ,texture.kind()
              ,texture.get_texture_type()
              ,texture.get_mipmap_levels()
+             ,texture.get_samples()
+             ,texture.get_internal_format()
             );
     Ok(texture)
 }
