@@ -6,7 +6,7 @@ extern crate docopt;
 
 use glium::backend::Facade;
 
-const NAME: &'static str = "black & white 2D";
+const NAME: &'static str = "4 colours";
 
 const USAGE: &'static str = r#"
 I kept dreaming of a world I thought I'd never see
@@ -99,9 +99,18 @@ fn main() {
         in vec2 pos;
         out vec4 color;
 
+        vec3 four(in float c) {
+            if (c == 0.0) return vec3(0.0, 0.0, 0.0);
+            if (c == 1.0) return vec3(1.0, 1.0, 1.0);
+            if ((c <=  9.0/255.0 && c <=  13.0/255.0) ||
+                (c <= 32.0/255.0 && c <= 126.0/255.0))
+                return vec3(55.0/255.0, 126.0/255.0, 184.0/255.0);
+            return vec3(228.0/255.0, 26.0/255.0, 28.0/255.0);
+        }
+
         void main() {
-            vec4 c = texture(tex, pos);
-            color = vec4(c.r, c.r, c.r, 1);
+            float c = texture(tex, pos).r;
+            color = vec4(four(c), 1);
         }
         ",
                            }).unwrap();
