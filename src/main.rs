@@ -69,9 +69,12 @@ fn main() {
     // let texture = file_to_texture(&display, width, height, args.arg_file.as_str()).unwrap();
     // let texture = file_to_texture2d(&display, width, height, args.arg_file.as_str()).unwrap();
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::Points);
+    let dims = [texture.get_width() as f32,
+                texture.get_height().unwrap_or(1) as f32,
+                texture.get_depth().unwrap_or(1) as f32];
     let uniforms = uniform! {
         tex: &texture,
-        window: [width as f32, height as f32, 0f32],
+        window: dims,
     };
 
     let program = program!(&display,
@@ -102,7 +105,7 @@ fn main() {
         out vec4 color;
 
         void main() {
-            float idx = 1*(pos.y + 1*(pos.x * window.y));
+            float idx = pos.y * window.y + 1*(pos.x * window.x) / (window.x * window.y);
 
             color = vec4(texture(tex, idx).rgb, 1);
 
