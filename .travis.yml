@@ -1,0 +1,94 @@
+dist: trusty
+language: rust
+services: docker
+sudo: required
+
+# TODO This is the Rust channel that build jobs will use by default but can be
+# overridden on a case by case basis down below
+rust: stable
+
+env:
+  global:
+    # TODO Update this to match the name of your project.
+    - CRATE_NAME=minrs
+
+    # TODO This is the channel that will be used to produce binary releases
+    - DEPLOY_VERSION=stable
+
+    # default job
+    - TARGET=x86_64-unknown-linux-gnu
+
+matrix:
+  # TODO These are all the build jobs. Adjust as necessary. Comment out what you
+  # don't need
+  include:
+    # Linux
+    - env: TARGET=i686-unknown-linux-gnu
+    - env: TARGET=i686-unknown-linux-musl
+    # - env: TARGET=x86_64-unknown-linux-gnu  # this is the default job
+    - env: TARGET=x86_64-unknown-linux-musl
+
+    # OSX
+    - env: TARGET=i686-apple-darwin
+      os: osx
+    - env: TARGET=x86_64-apple-darwin
+      os: osx
+
+    # Other architectures
+    - env: TARGET=aarch64-unknown-linux-gnu
+    - env: TARGET=armv7-unknown-linux-gnueabihf
+    - env: TARGET=mips-unknown-linux-gnu
+    - env: TARGET=mips64-unknown-linux-gnuabi64
+    - env: TARGET=mips64el-unknown-linux-gnuabi64
+    - env: TARGET=mipsel-unknown-linux-gnu
+    - env: TARGET=powerpc-unknown-linux-gnu
+    - env: TARGET=powerpc64-unknown-linux-gnu
+    - env: TARGET=powerpc64le-unknown-linux-gnu
+    - env: TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
+
+    # Testing other channels
+    - env: TARGET=x86_64-unknown-linux-gnu
+      rust: nightly
+    - env: TARGET=x86_64-apple-darwin
+      os: osx
+      rust: nightly
+
+install:
+  - sh ci/install.sh
+  - source ~/.cargo/env || true
+
+script:
+  - bash ci/script.sh
+
+before_deploy:
+  - sh ci/before_deploy.sh
+
+deploy:
+  # TODO update `api_key.secure`
+  # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
+  # - Encrypt it: `travis encrypt GH_TOKEN=0123456789012345678901234567890123456789`
+  # - Paste the output down here
+  api_key:
+    secure: "G8pRnQb8W4np2FJ6NNULqJNmLl6ZY5VursQpL3WXjIsvhNHEIG3MLdIPaJ0GOis2RxMrPPXkFn+E/oqlt/EWtoHLeaxdgruTZ7sIUKzUiccE4WoZpZy1iYMrldytohAY5eV5s9BC2pzsg+cLySmz5n1SknvKc8OsCV5AdZq78kv7CgI6izKi2+fS3eLkHCV5QM7USlNM3g96fjrFax7RqeE6wPJRjGYJti+6YGboiL6TyjcsDNkFRlV9HGESEe0VfCmaWfwaxV/oAqoOHsFGiLPE8TMggAw1HhhaeZMHMGy2EQQKfurZOorBvtjv+PxX9FrUDrDQMy5Vtx5e9Ss3cXRG/DrS50XscEkbH2SxFEMCIAORashA6M1by0RGdO8DwaMN9Hv5CjEdAleHKGXAQqT1KA1Ypu257aaRctB9OELmqXAKFXOLshvlX8wX0fJr3KAgfzV63iDnCSERFDm8X3ds4loVEJzc8WG42Gb8u380ZQkQewAiU6rskGhz2Voijs/HrjPPRD86eT8LnKOkKHcr/xfDHVbxEtUQ5DAjI/oNoRwo0gGz5+gMtOGLteQyuwPlbDwiermur3KdsUfjBNU+Dr6R0BPCZaSqDAX2aJzklav2/BPdbBSxsU6YTEnaWrEL8TImp+MmvFBxDE6XYzVwZ4PoTl6aP2c7BTscqVE="
+  file_glob: true
+  file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
+  on:
+    condition: $TRAVIS_RUST_VERSION = $DEPLOY_VERSION
+    tags: true
+  provider: releases
+  skip_cleanup: true
+
+cache: cargo
+before_cache:
+  # Travis can't cache files that are not readable by "others"
+  - chmod -R a+r $HOME/.cargo
+
+branches:
+  only:
+    # release tags
+    - /^v\d+\.\d+\.\d+.*$/
+    - master
+
+notifications:
+  email:
+    on_success: never
