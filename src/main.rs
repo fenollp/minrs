@@ -130,7 +130,7 @@ fn main() {
         for ev in display.poll_events() {
             match ev {
                 glium::glutin::Event::Closed => return,
-                glium::glutin::Event::KeyboardInput(glium::glutin::ElementState::Released, 9, Some(_)) => return,
+                glium::glutin::Event::KeyboardInput(glium::glutin::ElementState::Released, _, Some(Escape)) => return,
                 _ => ()
             }
         }
