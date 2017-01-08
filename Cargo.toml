@@ -2,8 +2,11 @@
 name = "minrs"
 version = "0.1.0"
 authors = ["Pierre Fenoll <pierrefenoll@gmail.com>"]
+description = "Binary data visualization"
+license = "MIT"
+keywords = ["conti", "binvis", "miners"]
 
 [dependencies]
-glium = "*"
-docopt = "0.6"
-rustc-serialize = "0.3" # if you're using `derive(RustcDecodable)`
+glium = "^0.16.0"
+docopt = "^0.6"
+rustc-serialize = "0.3" # for docopt, if you're using `derive(RustcDecodable)`
