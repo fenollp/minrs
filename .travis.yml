@@ -61,6 +61,10 @@ matrix:
       os: osx
       rust: nightly
 
+  allow_failures:
+    - TARGET=x86_64-unknown-netbsd
+    - TARGET=i686-apple-darwin
+
 install:
   - set -e
   - sh ci/install.sh
