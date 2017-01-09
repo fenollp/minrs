@@ -62,7 +62,7 @@ matrix:
       rust: nightly
 
   allow_failures:
-    - env: TARGET=x86_64-unknown-netbsd
+    - env: TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
     - env: TARGET=i686-apple-darwin
 
 install:
