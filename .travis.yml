@@ -18,6 +18,9 @@ env:
     # default job
     - TARGET=x86_64-unknown-linux-gnu
 
+    # Because we have multiple binaries
+    - DISABLE_TESTS=1
+
 matrix:
   # TODO These are all the build jobs. Adjust as necessary. Comment out what you
   # don't need
@@ -59,13 +62,16 @@ matrix:
       rust: nightly
 
 install:
+  - set -e
   - sh ci/install.sh
   - source ~/.cargo/env || true
 
 script:
+  - set -e
   - bash ci/script.sh
 
 before_deploy:
+  - set -e
   - sh ci/before_deploy.sh
 
 deploy:
