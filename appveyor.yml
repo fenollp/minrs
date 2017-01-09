@@ -1,3 +1,6 @@
+# Based on the "trust" template v0.1.1
+# https://github.com/japaric/trust/tree/v0.1.1
+
 environment:
   global:
   # TODO This is the Rust channel that build jobs will use by default but can be
@@ -64,7 +67,10 @@ deploy:
     secure: USzvAisfnu+izKvpW8mWsa4TekIHcuTmWBEqaZA8LU/o6NdQ04em6Qe8lWRi4YFK
   description: ''
   on:
-    # TODO This is the channel that will be used to produce binary releases
+    # TODO Here you can pick which targets will generate binary releases
+    # In this example, there are some targets that are tested using the stable
+    # and nightly channels. This condition makes sure there is only one release
+    # for such targets and that's generated using the stable channel
     RUST_VERSION: stable
     appveyor_repo_tag: true
   provider: GitHub
