@@ -18,9 +18,6 @@ env:
     # default job
     - TARGET=x86_64-unknown-linux-gnu
 
-    # Because we have multiple binaries
-    - DISABLE_TESTS=1
-
 matrix:
   # TODO These are all the build jobs. Adjust as necessary. Comment out what you
   # don't need
