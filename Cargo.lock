@@ -234,14 +234,14 @@ dependencies = [
  "backtrace 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "fnv 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "gl_generator 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "glutin 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "glutin 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "smallvec 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "glutin"
-version = "0.7.1"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "android_glue 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -678,7 +678,7 @@ dependencies = [
 "checksum gl_generator 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)" = "f1d8edc81c5ae84605a62f5dac661a2313003b26d59839f81d47d46cf0f16a55"
 "checksum gleam 0.2.30 (registry+https://github.com/rust-lang/crates.io-index)" = "6af023107aa969ccf8868a0304fead4b2f813c19aa9a6a243fddc041f3e51da5"
 "checksum glium 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)" = "7c468bf7855f25954a1140f066ebacc1ad5342fd33bf96be28e184c084176f11"
-"checksum glutin 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)" = "2e9ccb9cbbf1bc2599688293030c51a51aa9c860c37989179c3ed1f9fc51a11c"
+"checksum glutin 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)" = "f10fe6cb2f7e559e470cc0dfa2c89a4f476fc99ec1862632b057e68c3831eb7a"
 "checksum itoa 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "ae3088ea4baeceb0284ee9eea42f591226e6beaecf65373e41b38d95a1b8e7a1"
 "checksum kernel32-sys 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7507624b29483431c0ba2d82aece8ca6cdba9382bff4ddd0f7490560c056098d"
 "checksum khronos_api 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "09c9d3760673c427d46f91a0350f0a84a52e6bc5a84adf26dc610b6c52436630"
