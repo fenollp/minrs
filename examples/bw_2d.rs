@@ -78,32 +78,8 @@ fn main() {
     let program = program!(&display,
                            140 => {
                                point_size: true,
-                               vertex: "
-        #version 140
-
-        in vec2 position;
-        out vec2 pos;
-
-        void main() {
-            gl_PointSize = 1;
-            gl_Position = vec4(position, 0, 1);
-            pos = position;
-        }
-        ",
-                               fragment: "
-        #version 140
-
-        uniform sampler2D tex;
-        uniform vec3 window;
-
-        in vec2 pos;
-        out vec4 color;
-
-        void main() {
-            vec4 c = texture(tex, pos);
-            color = vec4(c.r, c.r, c.r, 1);
-        }
-        ",
+                               vertex: include_str!("../src/vert_2d_140.glsl"),
+                               fragment: include_str!("../src/frag_bw_2d_140.glsl")
                            }).unwrap();
 
     loop {
