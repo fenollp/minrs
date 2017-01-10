@@ -81,20 +81,7 @@ fn main() {
     let program = program!(&display,
                            140 => {
                                point_size: true,
-                               vertex: "
-        #version 140
-
-        uniform vec3 window;
-
-        in vec2 position;
-        out vec2 pos;
-
-        void main() {
-            gl_PointSize = 1;
-            gl_Position = vec4(position, 0, 1);
-            pos = position;
-        }
-        ",
+                               vertex: include_str!("vert_2d_140.glsl"),
                                fragment: "
         #version 140
 

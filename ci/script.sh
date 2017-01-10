@@ -14,11 +14,11 @@ main() {
     cross test --target $TARGET
     cross test --target $TARGET --release
 
-    cross run --target $TARGET --bin bw_2d -- -h
-    cross run --target $TARGET --bin bw_2d -- -h --release
+    cross run --target $TARGET -- -h
+    cross run --target $TARGET --release -- -h
 }
 
 # we don't run the "test phase" when doing deploys
-if [ -z $TRAVIS_TAG ] || [ -z $APPVEYOR_REPO_TAG_NAME ]; then
+if [ -z $TRAVIS_TAG ]; then
     main
 fi

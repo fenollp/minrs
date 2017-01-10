@@ -78,41 +78,8 @@ fn main() {
     let program = program!(&display,
                            140 => {
                                point_size: true,
-                               vertex: "
-        #version 140
-
-        in vec2 position;
-        out vec2 pos;
-
-        void main() {
-            gl_PointSize = 1;
-            gl_Position = vec4(position, 0, 1);
-            pos = position;
-        }
-        ",
-                               fragment: "
-        #version 140
-
-        uniform sampler2D tex;
-        uniform vec3 window;
-
-        in vec2 pos;
-        out vec4 color;
-
-        vec3 four(in float c) {
-            if (c == 0.0) return vec3(0.0, 0.0, 0.0);
-            if (c == 1.0) return vec3(1.0, 1.0, 1.0);
-            if ((c <=  9.0/255.0 && c <=  13.0/255.0) ||
-                (c <= 32.0/255.0 && c <= 126.0/255.0))
-                return vec3(55.0/255.0, 126.0/255.0, 184.0/255.0);
-            return vec3(228.0/255.0, 26.0/255.0, 28.0/255.0);
-        }
-
-        void main() {
-            float c = texture(tex, pos).r;
-            color = vec4(four(c), 1);
-        }
-        ",
+                               vertex: include_str!("../src/vert_2d_140.glsl"),
+                               fragment: include_str!("../src/frag_four_2d_140.glsl")
                            }).unwrap();
 
     loop {
