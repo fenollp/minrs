@@ -24,8 +24,9 @@ Options:
 
 #[derive(Debug, RustcDecodable)]
 struct Args {
-  arg_file: String,
-  flag_verbose: bool,
+    arg_file: String,
+    flag_verbose: bool,
+    flag_version: bool,
 }
 
 fn main() {
@@ -34,55 +35,60 @@ fn main() {
         .unwrap_or_else(|e| e.exit());
     println!("{:?}", args);
 
-    use glium::{DisplayBuild, Surface};
-    let display = glium::glutin::WindowBuilder::new()
-        .with_title(NAME)
-        .with_vsync()
-        .build_glium()
-        .unwrap();
-    let version = display.get_opengl_version();
-    println!("OpenGL version {:?}", version);
-    let (width, height) = display.get_context().get_framebuffer_dimensions();
-    println!("{:?}x{:?} = {:?}", width, height, width * height);
+    match args {
+        Args{flag_version: true, ..} =>
+            println!(env!("CARGO_PKG_VERSION")),
+        _ => {
 
-    #[derive(Copy, Clone)]
-    struct Vertex {
-        position: [f32; 2],
-    }
+            use glium::{DisplayBuild, Surface};
+            let display = glium::glutin::WindowBuilder::new()
+                .with_title(NAME)
+                .with_vsync()
+                .build_glium()
+                .unwrap();
+            let version = display.get_opengl_version();
+            println!("OpenGL version {:?}", version);
+            let (width, height) = display.get_context().get_framebuffer_dimensions();
+            println!("{:?}x{:?} = {:?}", width, height, width * height);
 
-    implement_vertex!(Vertex, position);
+            #[derive(Copy, Clone)]
+            struct Vertex {
+                position: [f32; 2],
+            }
 
-    let mut shape = vec![];
-    let half_width = width as f32 / 2f32;
-    let half_height = height as f32 / 2f32;
-    for y in 0..height {
-        for x in 0..width {
-            let xx = (x as f32 - half_width) / half_width;
-            let yy = (y as f32 - half_height) / half_height;
-            shape.push(Vertex{position: [xx, yy]});
-        }
-    }
-    println!("shape size: {:?}", shape.len());
+            implement_vertex!(Vertex, position);
 
-    let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
-    // let texture = load_file_1d(&display, width, height, args.arg_file.as_str()).unwrap();
-    // let texture = file_to_texture(&display, width, height, args.arg_file.as_str()).unwrap();
-    // let texture = file_to_texture2d(&display, width, height, args.arg_file.as_str()).unwrap();
-    let texture = file_to_texture2d_(&display, width, height, args.arg_file.as_str()).unwrap();
-    let indices = glium::index::NoIndices(glium::index::PrimitiveType::Points);
-    let dims = [texture.get_width() as f32,
-                texture.get_height().unwrap_or(1) as f32,
-                texture.get_depth().unwrap_or(1) as f32];
-    let uniforms = uniform! {
-        tex: &texture,
-        window: dims,
-    };
+            let mut shape = vec![];
+            let half_width = width as f32 / 2f32;
+            let half_height = height as f32 / 2f32;
+            for y in 0..height {
+                for x in 0..width {
+                    let xx = (x as f32 - half_width) / half_width;
+                    let yy = (y as f32 - half_height) / half_height;
+                    shape.push(Vertex{position: [xx, yy]});
+                }
+            }
+            println!("shape size: {:?}", shape.len());
 
-    let program = program!(&display,
-                           140 => {
-                               point_size: true,
-                               vertex: include_str!("vert_2d_140.glsl"),
-                               fragment: "
+            let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
+            // let texture = load_file_1d(&display, width, height, args.arg_file.as_str()).unwrap();
+            // let texture = file_to_texture(&display, width, height, args.arg_file.as_str()).unwrap();
+            // let texture = file_to_texture2d(&display, width, height, args.arg_file.as_str()).unwrap();
+            let texture = file_to_texture2d_(&display, width, height, args.arg_file.as_str()).unwrap();
+            let indices = glium::index::NoIndices(glium::index::PrimitiveType::Points);
+            let dims = [texture.get_width() as f32,
+                        texture.get_height().unwrap_or(1) as f32,
+                        texture.get_depth().unwrap_or(1) as f32];
+            let uniforms = uniform! {
+                tex: &texture,
+                window: dims,
+            };
+
+            let program = program!(&display,
+                                   140 => {
+                                       point_size: true,
+                                       vertex: include_str!("vert_2d_140.glsl"),
+                                       fragment: "
         #version 140
 
         // uniform sampler1D tex;
@@ -106,19 +112,21 @@ fn main() {
             color = vec4(c.r, c.r, c.r, 1);
         }
         ",
-                           }).unwrap();
+                                   }).unwrap();
 
-    loop {
-        let mut target = display.draw();
-        target.clear_color(0.0, 0.0, 0.0, 1.0);
-        target.draw(&vertex_buffer, &indices, &program, &uniforms, &Default::default()).unwrap();
-        target.finish().unwrap();
+            loop {
+                let mut target = display.draw();
+                target.clear_color(0.0, 0.0, 0.0, 1.0);
+                target.draw(&vertex_buffer, &indices, &program, &uniforms, &Default::default()).unwrap();
+                target.finish().unwrap();
 
-        for ev in display.poll_events() {
-            match ev {
-                glium::glutin::Event::Closed => return,
-                glium::glutin::Event::KeyboardInput(glium::glutin::ElementState::Released, _, Some(Escape)) => return,
-                _ => ()
+                for ev in display.poll_events() {
+                    match ev {
+                        glium::glutin::Event::Closed => return,
+                        glium::glutin::Event::KeyboardInput(glium::glutin::ElementState::Released, _, Some(Escape)) => return,
+                        _ => ()
+                    }
+                }
             }
         }
     }
