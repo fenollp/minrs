@@ -89,9 +89,10 @@ fn main() {
         target.finish().unwrap();
 
         for ev in display.poll_events() {
+            use glium::glutin::VirtualKeyCode;
             match ev {
                 glium::glutin::Event::Closed => return,
-                glium::glutin::Event::KeyboardInput(glium::glutin::ElementState::Released, _, Some(Escape)) => return,
+                glium::glutin::Event::KeyboardInput(glium::glutin::ElementState::Released, _, Some(VirtualKeyCode::Escape)) => return,
                 _ => ()
             }
         }
