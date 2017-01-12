@@ -1,6 +1,6 @@
 [package]
 name = "minrs"
-version = "0.3.1"
+version = "0.3.2"
 authors = ["Pierre Fenoll <pierrefenoll@gmail.com>"]
 description = "Visualizations for binary data in the wild"
 license = "MIT"
