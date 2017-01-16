@@ -80,7 +80,7 @@ matrix:
 
 install:
   - set -e
-  - sh ci/install.sh
+  - TARGET="$TARGET" sh ci/install.sh
   - source ~/.cargo/env || true
 
 script:

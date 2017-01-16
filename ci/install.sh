@@ -19,6 +19,12 @@ main() {
            --git japaric/cross \
            --tag $tag \
            --target $target
+
+    export PATH="$HOME/.cargo/bin:$PATH"
+    which rustup || true
+    whereis rustup || true
+    rustup --version || true
+    rustup target add $TARGET
 }
 
 main
