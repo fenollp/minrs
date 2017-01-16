@@ -11,7 +11,8 @@ main() {
         target=x86_64-apple-darwin
     fi
 
-    tag="$(git ls-remote --tags --refs --exit-code https://github.com/japaric/cross |cut -d/ -f3 | tail -n1)"
+    local tag="$(git ls-remote --tags --refs --exit-code https://github.com/japaric/cross | cut -d/ -f3 | tail -n1)"
+    echo cross version: $tag
     curl -LSfs https://japaric.github.io/trust/install.sh | \
         sh -s -- \
            --force \
