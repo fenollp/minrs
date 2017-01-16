@@ -6,9 +6,9 @@ main() {
 
     local target=
     if [ $TRAVIS_OS_NAME = linux ]; then
-        target=x86_64-unknown-linux-gnu
+        target=$TARGET_DEFAULT_LINUX
     else
-        target=x86_64-apple-darwin
+        target=$TARGET_DEFAULT_OSX
     fi
 
     local tag="$(git ls-remote --tags --refs --exit-code https://github.com/japaric/cross | cut -d/ -f3 | tail -n1)"
@@ -20,11 +20,16 @@ main() {
            --tag $tag \
            --target $target
 
+    echo $TARGET
+    echo $TARGET_DEFAULT_LINUX
+    echo $TARGET_DEFAULT_OSX
     export PATH="$HOME/.cargo/bin:$PATH"
     which rustup || true
     whereis rustup || true
     rustup --version || true
-    rustup target add $TARGET
+    if [ $TARGET = $TARGET_DEFAULT ] || [ $TARGET =  ]; then
+        rustup target add $TARGET
+    fi
 }
 
 main
