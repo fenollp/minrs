@@ -45,6 +45,7 @@ fn main() {
             use glium::{DisplayBuild, Surface};
             let display = glium::glutin::WindowBuilder::new()
                 .with_title(NAME)
+                .with_decorations(false)
                 .with_vsync()
                 .build_glium()
                 .unwrap();
