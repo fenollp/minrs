@@ -6,19 +6,30 @@ main() {
 
     local target=
     if [ $TRAVIS_OS_NAME = linux ]; then
-        target=x86_64-unknown-linux-gnu
+        target=$TARGET_DEFAULT_LINUX
     else
-        target=x86_64-apple-darwin
+        target=$TARGET_DEFAULT_OSX
     fi
 
-    # TODO At some point you'll probably want to use a newer release of `cross`,
-    # simply change the argument to `--tag`.
+    local tag="$(git ls-remote --tags --refs --exit-code https://github.com/japaric/cross | cut -d/ -f3 | tail -n1)"
+    echo cross version: $tag
     curl -LSfs https://japaric.github.io/trust/install.sh | \
         sh -s -- \
            --force \
            --git japaric/cross \
-           --tag v0.1.4 \
+           --tag $tag \
            --target $target
+
+    echo $TARGET
+    echo $TARGET_DEFAULT_LINUX
+    echo $TARGET_DEFAULT_OSX
+    export PATH="$HOME/.cargo/bin:$PATH"
+    which rustup || true
+    whereis rustup || true
+    rustup --version || true
+    if [ $TARGET = $TARGET_DEFAULT ] || [ $TARGET =  ]; then
+        rustup target add $TARGET
+    fi
 }
 
 main
